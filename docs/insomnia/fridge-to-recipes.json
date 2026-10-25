@@ -1,0 +1,494 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-25T00:00:00.000Z",
+  "__export_source": "fridge-to-recipes",
+  "resources": [
+    {
+      "_id": "__WORKSPACE_ID__",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Fridge to Recipes API",
+      "description": "API requests with after-response assertions. Run validation requests without provider access. Success requests call the configured recipe provider.",
+      "scope": "collection"
+    },
+    {
+      "_id": "__BASE_ENVIRONMENT_ID__",
+      "_type": "environment",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3001"
+      }
+    },
+    {
+      "_id": "__folder_valid__",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "Successful requests",
+      "description": "Requires a configured server and working provider access. These requests may incur provider usage charges."
+    },
+    {
+      "_id": "__folder_validation__",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "Input validation",
+      "description": "Expected HTTP 400. These requests do not call the recipe provider."
+    },
+    {
+      "_id": "__folder_configuration__",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "Manual server configuration",
+      "description": "Run separately. Stop the server, start it without OPENAI_API_KEY (including values loaded from .env), then send this request. Restore configuration afterwards."
+    },
+    {
+      "_id": "__request_1__",
+      "_type": "request",
+      "parentId": "__folder_valid__",
+      "name": "All options",
+      "description": "Expected HTTP 200.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"chicken\",\n    \"rice\",\n    \"onion\"\n  ],\n  \"dietary\": \"none\",\n  \"cuisine\": \"asian\",\n  \"maxCookTime\": 30,\n  \"servings\": 2\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 200', () => {\n  insomnia.expect(insomnia.response.status).to.eql(200);\n});\ninsomnia.test('Returns exactly three valid recipes', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.recipes).to.be.an('array').with.lengthOf(3);\n  for (const recipe of body.recipes) {\n    insomnia.expect(recipe.title).to.be.a('string');\n    insomnia.expect(recipe.title.trim().length).to.be.above(0);\n    insomnia.expect(recipe.ingredients).to.be.an('array').that.is.not.empty;\n    for (const ingredient of recipe.ingredients) {\n      insomnia.expect(ingredient.name).to.be.a('string');\n      insomnia.expect(ingredient.name.trim().length).to.be.above(0);\n      insomnia.expect(ingredient.missing).to.be.a('boolean');\n    }\n    insomnia.expect(recipe.instructions).to.be.an('array').that.is.not.empty;\n    for (const step of recipe.instructions) {\n      insomnia.expect(step).to.be.a('string');\n      insomnia.expect(step.trim().length).to.be.above(0);\n    }\n    insomnia.expect(Number.isInteger(recipe.estimatedCookTime)).to.eql(true);\n    insomnia.expect(recipe.estimatedCookTime).to.be.above(0);\n    if (recipe.servings !== undefined) {\n      insomnia.expect(Number.isInteger(recipe.servings)).to.eql(true);\n      insomnia.expect(recipe.servings).to.be.above(0);\n    }\n  }\n});"
+      }
+    },
+    {
+      "_id": "__request_2__",
+      "_type": "request",
+      "parentId": "__folder_valid__",
+      "name": "Required ingredients only",
+      "description": "Expected HTTP 200.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\",\n    \"onion\"\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 200', () => {\n  insomnia.expect(insomnia.response.status).to.eql(200);\n});\ninsomnia.test('Returns exactly three valid recipes', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.recipes).to.be.an('array').with.lengthOf(3);\n  for (const recipe of body.recipes) {\n    insomnia.expect(recipe.title).to.be.a('string');\n    insomnia.expect(recipe.title.trim().length).to.be.above(0);\n    insomnia.expect(recipe.ingredients).to.be.an('array').that.is.not.empty;\n    for (const ingredient of recipe.ingredients) {\n      insomnia.expect(ingredient.name).to.be.a('string');\n      insomnia.expect(ingredient.name.trim().length).to.be.above(0);\n      insomnia.expect(ingredient.missing).to.be.a('boolean');\n    }\n    insomnia.expect(recipe.instructions).to.be.an('array').that.is.not.empty;\n    for (const step of recipe.instructions) {\n      insomnia.expect(step).to.be.a('string');\n      insomnia.expect(step.trim().length).to.be.above(0);\n    }\n    insomnia.expect(Number.isInteger(recipe.estimatedCookTime)).to.eql(true);\n    insomnia.expect(recipe.estimatedCookTime).to.be.above(0);\n    if (recipe.servings !== undefined) {\n      insomnia.expect(Number.isInteger(recipe.servings)).to.eql(true);\n      insomnia.expect(recipe.servings).to.be.above(0);\n    }\n  }\n});"
+      }
+    },
+    {
+      "_id": "__request_3__",
+      "_type": "request",
+      "parentId": "__folder_valid__",
+      "name": "Whitespace and duplicate ingredients",
+      "description": "Expected HTTP 200.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \" Rice \",\n    \"rice\",\n    \"onion\"\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 200', () => {\n  insomnia.expect(insomnia.response.status).to.eql(200);\n});\ninsomnia.test('Returns exactly three valid recipes', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.recipes).to.be.an('array').with.lengthOf(3);\n  for (const recipe of body.recipes) {\n    insomnia.expect(recipe.title).to.be.a('string');\n    insomnia.expect(recipe.title.trim().length).to.be.above(0);\n    insomnia.expect(recipe.ingredients).to.be.an('array').that.is.not.empty;\n    for (const ingredient of recipe.ingredients) {\n      insomnia.expect(ingredient.name).to.be.a('string');\n      insomnia.expect(ingredient.name.trim().length).to.be.above(0);\n      insomnia.expect(ingredient.missing).to.be.a('boolean');\n    }\n    insomnia.expect(recipe.instructions).to.be.an('array').that.is.not.empty;\n    for (const step of recipe.instructions) {\n      insomnia.expect(step).to.be.a('string');\n      insomnia.expect(step.trim().length).to.be.above(0);\n    }\n    insomnia.expect(Number.isInteger(recipe.estimatedCookTime)).to.eql(true);\n    insomnia.expect(recipe.estimatedCookTime).to.be.above(0);\n    if (recipe.servings !== undefined) {\n      insomnia.expect(Number.isInteger(recipe.servings)).to.eql(true);\n      insomnia.expect(recipe.servings).to.be.above(0);\n    }\n  }\n});"
+      }
+    },
+    {
+      "_id": "__request_4__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Body is an array",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "[]"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Request body must be an object.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_5__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Missing ingredients",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Add at least one non-empty ingredient.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_6__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Empty ingredients",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": []\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Add at least one non-empty ingredient.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_7__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Blank ingredient",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\",\n    \"  \"\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Add at least one non-empty ingredient.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_8__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Non-string ingredient",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\",\n    42\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Add at least one non-empty ingredient.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_9__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Zero servings",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"servings\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Cooking time and servings must be positive whole numbers.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_10__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Fractional servings",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"servings\": 1.5\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Cooking time and servings must be positive whole numbers.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_11__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Negative cooking time",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"maxCookTime\": -1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Cooking time and servings must be positive whole numbers.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_12__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Cooking time as text",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"maxCookTime\": \"30\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Cooking time and servings must be positive whole numbers.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_13__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Null servings",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"servings\": null\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Cooking time and servings must be positive whole numbers.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_14__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Invalid dietary type",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"dietary\": false\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Dietary restriction and cuisine must be text.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_15__",
+      "_type": "request",
+      "parentId": "__folder_validation__",
+      "name": "Invalid cuisine type",
+      "description": "Expected HTTP 400.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ],\n  \"cuisine\": []\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 400', () => {\n  insomnia.expect(insomnia.response.status).to.eql(400);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Dietary restriction and cuisine must be text.\" });\n});"
+      }
+    },
+    {
+      "_id": "__request_16__",
+      "_type": "request",
+      "parentId": "__folder_configuration__",
+      "name": "Missing server API key",
+      "description": "Expected HTTP 503. Requires restarting the server without OPENAI_API_KEY; do not run alongside successful requests.",
+      "url": "{{ _.base_url }}/api/recipes",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ingredients\": [\n    \"rice\"\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "scripts": {
+        "afterResponse": "insomnia.test('Returns HTTP 503', () => {\n  insomnia.expect(insomnia.response.status).to.eql(503);\n});\ninsomnia.test('Returns the expected validation or configuration error', () => {\n  insomnia.expect(insomnia.response.json()).to.eql({ error: \"Recipe generation is not configured on the server.\" });\n});"
+      }
+    }
+  ]
+}

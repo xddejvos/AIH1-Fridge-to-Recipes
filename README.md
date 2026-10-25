@@ -127,6 +127,20 @@ The backend validates every request and returns HTTP 400 for invalid input. It c
 
 ## Tests and build
 
+### Insomnia API collection
+
+Import [the API collection](docs/insomnia/fridge-to-recipes.json) in Insomnia using **Import > File**. It uses the supported Insomnia JSON v4 import format and includes after-response assertions.
+
+Start the backend and set the collection's `base_url` environment variable to its address (default: `http://localhost:3001`, without a trailing slash). Requests use `POST /api/recipes`; no client authentication header is required. Keep the provider API key on the server, not in Insomnia.
+
+- **Successful requests**: three requests covering all options, required fields only, and whitespace/duplicate ingredients. Assertions check HTTP 200 and the response structure with exactly three recipes. These requests call the configured provider and may incur usage charges; recipe text varies between calls.
+- **Input validation**: twelve invalid requests check HTTP 400 and the exact error body. They do not call the provider and work without a configured provider key.
+- **Manual server configuration**: one request checks HTTP 503. Run it separately after starting the server without `OPENAI_API_KEY`, including any value loaded from `server/.env`. Restore the original configuration afterwards. Do not run all folders together because this scenario conflicts with successful requests.
+
+Send a request and inspect its test results, or run the appropriate folder in the collection runner. Provider failures return HTTP 502; they are not included as a deterministic scenario because triggering them requires control over the provider or server configuration. The collection does not create persistent application records, so no data cleanup is needed.
+
+Import format and scripting references: [Insomnia import/export](https://developer.konghq.com/insomnia/import-export/) and [after-response scripts](https://developer.konghq.com/insomnia/scripts/).
+
 ```bash
 cd server
 npm test
