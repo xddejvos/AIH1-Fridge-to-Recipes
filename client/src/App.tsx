@@ -29,13 +29,8 @@ export default function App() {
 
   return (
     <main className="page-shell">
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Fridge to Recipes home"><span className="brand-mark">f.</span><span>fresh<span className="brand-dot">.</span>finds</span></a>
-        <span className="header-note">A little inspiration for what's in your fridge</span>
-      </header>
       <section className="hero" id="top">
         <div className="hero-copy">
-          <span className="eyebrow"><span className="eyebrow-dot" /> YOUR KITCHEN, REIMAGINED</span>
           <h1>Fridge to<br /><em>Recipes</em></h1>
         </div>
         <div className="hero-art" aria-hidden="true"><div className="sun-shape" /><div className="art-leaf leaf-one" /><div className="art-leaf leaf-two" /><div className="art-leaf leaf-three" /><div className="art-tomato">✳</div></div>
